@@ -242,8 +242,6 @@ async function getEditableVideos() {
 async function publishDrafts() {
 	const videos = await getEditableVideos();
 	; debugLog(`found ${videos.length} videos`);
-	; debugLog('starting in 1000ms...');
-	await sleep(1000);
 	for (let video of videos) {
 		const draft = await video.openDraft();
 		; debugLog({
@@ -256,6 +254,7 @@ async function publishDrafts() {
 		/*const dialog = */await visibility.save();
 		//await dialog.close();
 		await untilElementClosed(DRAFT_DIALOG_OVERLAY, dialog);
+		await sleep(100);
 		; debugLog('published draft');
 	}
 }
@@ -374,6 +373,9 @@ async function sortPlaylist() {
 	}
 
 }
+
+; debugLog('starting in 1000ms...');
+await sleep(1000);
 
 
 // ----------------------------------
