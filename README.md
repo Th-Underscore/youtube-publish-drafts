@@ -12,7 +12,7 @@ Automatically publish all your draft videos using JavaScript!
 (if you were to do that, which I'm pretty sure is against YouTube's Terms of Service, so don't do that)
 
 1. Go to YouTube Studio's "Content"  page
-2. Press F12
-3. Paste the entire content of the [`youtube-publish-drafts.js`](https://raw.githubusercontent.com/Th-Underscore/youtube-publish-drafts/refs/heads/master/youtube-publish-drafts.js) file into Console
-4. Make any necessary edits at the top marked "CONFIG", and press Enter
-5. Get a snack! It might take a couple minutes
+2. Press F12 (or Ctrl+Shift+I, or right-click and select "Inspect" / "Inspect Element")
+3. Paste the entire content of the [`youtube-publish-drafts.js`](https://raw.githubusercontent.com/Th-Underscore/youtube-publish-drafts/refs/heads/master/youtube-publish-drafts.js) file into the Console input
+4. Make any necessary edits at the top of the text - marked `PUBLISH CONFIG` (visibility, made for kids, etc.) - and press Enter
+5. Get a snack! This might take a couple minutes
