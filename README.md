@@ -1,22 +1,17 @@
 # youtube-publish-drafts
 
-## help
-to get help join our discord server https://discord.gg/xj6JxW8k
+## Help
+If you have any issues, reply to me [on Reddit](https://www.reddit.com/r/javascript/comments/kl0ffl/i_automated_youtubes_bulk_upload_publish_process/) or [open an issue](https://github.com/Th-Underscore/youtube-publish-drafts/issues)!
 
-## support development of this project
-```
-BTC: bc1qksrtrwkhq043h56rsh9d4zdnmk0d43tm4m6xux
-```
+## About
+Automatically publish all your draft videos using JavaScript!
 
-## about
-Publish all your draft videos without clicking by using javascript
 ![quick demo](youtube-publisher-demo.gif)
 
-## how it would be used
-if you were to do that, (which I'm pretty sure is against YouTube's terms of use, so don't do that), you'd:
-1. go to YouTube Studio's "Content"  page
-2. press f12
-3. paste the entire content of youtube-publish-drafts.js file
-4. wait
+## How to Use This
+(if you were to do that, which I'm pretty sure is against YouTube's Terms of Service, so don't do that)
 
-It should work as of 26.12.2020.
+1. Go to YouTube Studio's "Content"  page
+2. Press F12
+3. Paste the entire content of the [`youtube-publish-drafts.js`](https://raw.githubusercontent.com/Th-Underscore/youtube-publish-drafts/refs/heads/master/youtube-publish-drafts.js) file
+4. Get a snack! It might take a couple minutes
