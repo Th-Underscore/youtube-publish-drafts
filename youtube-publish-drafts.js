@@ -11,7 +11,7 @@ const LOOP_PAGES = true; // true / false		(enable to loop through all pages)
 // ~ PUBLISH CONFIG
 // -----------------------------------------------------------------
 const MADE_FOR_KIDS = false; // true / false;
-const VISIBILITY = 'Private'; // 'Public' / 'Private' / 'Unlisted'
+const VISIBILITY = 'Unlisted'; // 'Public' / 'Private' / 'Unlisted'
 // -----------------------------------------------------------------
 // ~ SORT PLAYLIST CONFIG
 // -----------------------------------------------------------------
@@ -57,12 +57,12 @@ function debugLog(...args) {
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function untilElementNot(selector, callback=Null, baseEl=document, timeoutMs=DEFAULT_ELEMENT_TIMEOUT_MS) {
+async function untilElementNot(selector, comparator=null, baseEl=document, timeoutMs=DEFAULT_ELEMENT_TIMEOUT_MS) {
 	//const  maxIterations = Math.ceil(timeoutMs / TIMEOUT_STEP_MS);
 	//for (let i = 0; i < maxIterations; i++) {
 	for (let timeout = timeoutMs; timeout > 0; timeout -= TIMEOUT_STEP_MS) {
 		let element = baseEl.querySelector(selector);
-		if (element != await callback()) {
+		if (element != comparator) {
 			return element;
 		}
 		await sleep(TIMEOUT_STEP_MS);
@@ -71,13 +71,11 @@ async function untilElementNot(selector, callback=Null, baseEl=document, timeout
 }
 
 async function untilElementClosed(selector, element, baseEl=document, timeoutMs=DEFAULT_ELEMENT_TIMEOUT_MS) {
-	return await untilElementNot(selector, async () => element, baseEl, timeoutMs);
+	return await untilElementNot(selector, element, baseEl, timeoutMs);
 }
 
-//const Null = () => Promise.resolve();
-const Null = async () => null;
 async function findElement(selector, baseEl=document, timeoutMs=DEFAULT_ELEMENT_TIMEOUT_MS) {
-	const element = await untilElementNot(selector, Null, baseEl, timeoutMs);
+	const element = await untilElementNot(selector, null, baseEl, timeoutMs);
 	if (element) { return element; }
 	; debugLog(`could not find ${selector} inside`, baseEl);
 	return null;
@@ -110,65 +108,64 @@ const VISIBILITY_STEPPER_SELECTOR = '#step-badge-3';
 const VISIBILITY_PAPER_BUTTONS_SELECTOR = 'tp-yt-paper-radio-group';
 const SAVE_BUTTON_SELECTOR = '#done-button';
 //const SUCCESS_ELEMENT_SELECTOR = 'ytcp-video-thumbnail-with-info';
-//const DIALOG_SELECTOR = 'ytcp-dialog.ytcp-video-share-dialog > tp-yt-paper-dialog:nth-child(1)';
-const DIALOG_CLOSE_BUTTON_SELECTOR = 'tp-yt-iron-icon';
+const SUCCESS_DIALOG_SELECTOR = '.ytcp-video-share-dialog tp-yt-paper-dialog';
+const SUCCESS_DIALOG_CLOSE_BUTTON_SELECTOR = '#close-button';
 const NEXT_PAGE_BUTTON_SELECTOR = '#navigate-after';
 // CHECKS
 // --------
 const PAGE_DESCRIPTION = '.page-description';
 const DRAFT_DIALOG_OVERLAY = 'ytcp-uploads-dialog'; // or 'tp-yt-iron-overlay-backdrop.opened'
 
-// class SuccessDialog {
-// 	constructor(raw) {
-// 		this.raw = raw;
-// 	}
+class SuccessDialog {
+	constructor(raw) {
+		this.raw = raw;
+	}
 
-// 	async closeDialogButton() {
-// 		return await findElement(DIALOG_CLOSE_BUTTON_SELECTOR, this.raw);
-// 	}
+	async findCloseDialogButton() {
+		return await findElement(SUCCESS_DIALOG_CLOSE_BUTTON_SELECTOR, this.raw);
+	}
 
-// 	async close() {
-// 		await sleep(50);
-// 		; debugLog('closed');
-// 	}
-// }
+	async close() {
+		await sleep(50);
+		click(await this.findCloseDialogButton()); // .click()
+		; debugLog('closed');
+	}
+}
 
 class VisibilityModal {
 	constructor(raw) {
 		this.raw = raw;
 	}
 
-	async radioButtonGroup() {
+	async findRadioButtonGroup() {
 		return await findElement(VISIBILITY_PAPER_BUTTONS_SELECTOR, this.raw);
 	}
 
-	async visibilityRadioButton() {
-		const group = await this.radioButtonGroup();
+	async findVisibilityRadioButton() {
+		const group = await this.findRadioButtonGroup();
 		const value = VISIBILITY_PUBLISH_ORDER[VISIBILITY];
 		return [...group.querySelectorAll(RADIO_BUTTON_SELECTOR)][value];
 	}
 
 	async setVisibility() {
-		click(await this.visibilityRadioButton());
+		click(await this.findVisibilityRadioButton());
 		; debugLog(`visibility set to ${VISIBILITY}`);
 		await sleep(50);
 	}
 
-	async saveButton() {
+	async findSaveButton() {
 		return await findElement(SAVE_BUTTON_SELECTOR, this.raw);
 	}
-	async isSaved() {
-		await findElement(SUCCESS_ELEMENT_SELECTOR, document);
-	}
+	// async isSaved() {
+	// 	await findElement(SUCCESS_ELEMENT_SELECTOR, document);
+	// }
 	// async dialog() {
 	// 	return await findElement(DIALOG_SELECTOR);
 	// }
 	async save() {
-		click(await this.saveButton());
+		click(await this.findSaveButton());
 		await sleep(50);
 		; debugLog('saved');
-		// const dialogElement = await this.dialog();
-		// const success = new SuccessDialog(dialogElement);
 		return dialog;
 	}
 }
@@ -182,25 +179,25 @@ class DraftModal {
 	//	return await findElement(MADE_FOR_KIDS_SELECTOR, this.raw);
 	//}
 
-	async getMadeForKidsPaperButton() {
+	async findMadeForKidsPaperButton() {
 		const nthChild = MADE_FOR_KIDS ? 1 : 2;
 		return await findElement(`${RADIO_BUTTON_SELECTOR}:nth-child(${nthChild})`, this.raw);
 	}
 
 	async selectMadeForKids() {
-		click(await this.getMadeForKidsPaperButton());
+		click(await this.findMadeForKidsPaperButton());
 		await sleep(50);
 		; debugLog(`"Made for kids" set to ${MADE_FOR_KIDS}`);
 	}
 
-	async visibilityStepper() {
+	async findVisibilityStepper() {
 		return await findElement(VISIBILITY_STEPPER_SELECTOR, this.raw);
 	}
 
 	async goToVisibility() {
 		; debugLog('going to Visibility');
 		await sleep(50);
-		click(await this.visibilityStepper());
+		click(await this.findVisibilityStepper());
 		const visibility = new VisibilityModal(this.raw);
 		await sleep(50);
 		await findElement(VISIBILITY_PAPER_BUTTONS_SELECTOR, visibility.raw);
@@ -213,13 +210,13 @@ class VideoRow {
 		this.raw = raw;
 	}
 
-	get editDraftButton() {
-		return findElement(DRAFT_BUTTON_SELECTOR, this.raw, 20);
+	async getEditDraftButton() {
+		return await findElement(DRAFT_BUTTON_SELECTOR, this.raw, 20);
 	}
 
 	async openDraft() {
 		; debugLog('focusing draft button');
-		click(await this.editDraftButton);
+		click(await this.getEditDraftButton());
 		return new DraftModal(await findElement(DRAFT_MODAL_SELECTOR));
 	}
 }
@@ -232,8 +229,8 @@ function getAllVideos() {
 async function getEditableVideos() {
 	let editable = [];
 	for (let video of getAllVideos()) {
-		if ((await video.editDraftButton) !== null) {
-			editable = [...editable, video];
+		if ((await video.getEditDraftButton()) !== null) {
+			editable.push(video);
 		}
 	}
 	return editable;
@@ -248,12 +245,18 @@ async function publishDrafts() {
 			draft
 		});
 		await draft.selectMadeForKids();
+
 		const visibility = await draft.goToVisibility();
 		await visibility.setVisibility();
+		await visibility.save();
 		const dialog = await findElement(DRAFT_DIALOG_OVERLAY);
-		/*const dialog = */await visibility.save();
-		//await dialog.close();
-		await untilElementClosed(DRAFT_DIALOG_OVERLAY, dialog);
+		await sleep(100);
+		// await untilElementClosed(DRAFT_DIALOG_OVERLAY, dialog);
+
+		const success_dialog = await findElement(SUCCESS_DIALOG_SELECTOR);
+		await new SuccessDialog(success_dialog).close();
+		await untilElementClosed(SUCCESS_DIALOG_SELECTOR);
+		
 		await sleep(100);
 		; debugLog('published draft');
 	}
@@ -376,7 +379,6 @@ async function sortPlaylist() {
 
 ; debugLog('starting in 1000ms...');
 await sleep(1000);
-
 
 // ----------------------------------
 // ENTRY POINT
